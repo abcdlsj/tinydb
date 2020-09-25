@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -g -o
 NAME = tinydb
 
-target:
+tinydb:
 	$(CC) $(CFLAGS) $(NAME) main.c
 
 clean:
