@@ -40,16 +40,16 @@ typedef struct {
 
 #define size_of_attribute(Struct, Attribute) sizeof(((Struct *)0)->Attribute)
 
-const uint32_t ID_SIZE         = size_of_attribute(Row, id);
-const uint32_t USERNAME_SIZE   = size_of_attribute(Row, username);
-const uint32_t EMAIL_SIZE      = size_of_attribute(Row, email);
-const uint32_t ID_OFFSET       = 0;
+const uint32_t ID_SIZE = size_of_attribute(Row, id);
+const uint32_t USERNAME_SIZE = size_of_attribute(Row, username);
+const uint32_t EMAIL_SIZE = size_of_attribute(Row, email);
+const uint32_t ID_OFFSET = 0;
 const uint32_t USERNAME_OFFSET = ID_OFFSET + ID_SIZE;
-const uint32_t EMAIL_OFFSET    = USERNAME_SIZE + USERNAME_OFFSET;
-const uint32_t ROW_SIZE        = ID_SIZE + USERNAME_SIZE + EMAIL_SIZE;
-const uint32_t PAGE_SIZE       = 4096;
+const uint32_t EMAIL_OFFSET = USERNAME_SIZE + USERNAME_OFFSET;
+const uint32_t ROW_SIZE = ID_SIZE + USERNAME_SIZE + EMAIL_SIZE;
+const uint32_t PAGE_SIZE = 4096;
 #define TABLE_MAX_PAGES 100
-const uint32_t ROWS_PER_PAGE  = PAGE_SIZE / ROW_SIZE;
+const uint32_t ROWS_PER_PAGE = PAGE_SIZE / ROW_SIZE;
 const uint32_t TABLE_MAX_ROWS = ROWS_PER_PAGE * TABLE_MAX_PAGES;
 
 //
@@ -77,13 +77,13 @@ typedef struct {
 } Table;
 
 typedef struct {
-  Table* table;
+  Table *table;
   uint32_t row_num;
   bool end_of_table;
 } Cursor;
 
-Cursor* table_start(Table* table) {
-  Cursor* cursor = malloc(sizeof(Cursor));
+Cursor *table_start(Table *table) {
+  Cursor *cursor = malloc(sizeof(Cursor));
   cursor->table = table;
   cursor->row_num = 0;
   cursor->end_of_table = (table->num_rows == 0);
@@ -91,8 +91,8 @@ Cursor* table_start(Table* table) {
   return cursor;
 }
 
-Cursor* table_end(Table* table) {
-  Cursor* cursor = malloc(sizeof(Cursor));
+Cursor *table_end(Table *table) {
+  Cursor *cursor = malloc(sizeof(Cursor));
   cursor->table = table;
   cursor->row_num = table->num_rows;
   cursor->end_of_table = true;
@@ -108,10 +108,10 @@ Pager *pager_open(const char *filename) {
     exit(EXIT_FAILURE);
   }
 
-  off_t file_len        = lseek(fd, 0, SEEK_END);
-  Pager *pager          = malloc(sizeof(Pager));
-        pager->fd       = fd;
-        pager->file_len = file_len;
+  off_t file_len = lseek(fd, 0, SEEK_END);
+  Pager *pager = malloc(sizeof(Pager));
+  pager->fd = fd;
+  pager->file_len = file_len;
 
   for (uint32_t i = 0; i < TABLE_MAX_PAGES; i++) {
     pager->pages[i] = NULL;
@@ -121,12 +121,12 @@ Pager *pager_open(const char *filename) {
 }
 
 Table *db_open(const char *filename) {
-  Pager    *pager   = pager_open(filename);
+  Pager *pager = pager_open(filename);
   uint32_t num_rows = pager->file_len / ROW_SIZE;
 
-  Table *table          = malloc(sizeof(Table));
-        table->pager    = pager;
-        table->num_rows = num_rows;
+  Table *table = malloc(sizeof(Table));
+  table->pager = pager;
+  table->num_rows = num_rows;
 
   return table;
 }
@@ -204,10 +204,10 @@ typedef struct {
 } Ibuffer;
 
 Ibuffer *new_in_buffer() {
-  Ibuffer *in_buffer         = malloc(sizeof(Ibuffer));
-          in_buffer->buf_len = 0;
-          in_buffer->buf     = NULL;
-          in_buffer->in_len  = 0;
+  Ibuffer *in_buffer = malloc(sizeof(Ibuffer));
+  in_buffer->buf_len = 0;
+  in_buffer->buf = NULL;
+  in_buffer->in_len = 0;
 
   return in_buffer;
 }
@@ -222,8 +222,8 @@ void read_input(Ibuffer *buffer) {
     exit(EXIT_FAILURE);
   }
 
-              buffer->in_len = bytes - 1;
-  buffer->buf[bytes - 1]     = 0;
+  buffer->in_len = bytes - 1;
+  buffer->buf[bytes - 1] = 0;
 }
 
 void close_buffer(Ibuffer *buffer) {
@@ -242,11 +242,11 @@ MetaCommandResult do_meta_command(Ibuffer *buffer, Table *table) {
 }
 
 PrepareResult prepare_insert(Ibuffer *buffer, Statement *statement) {
-       statement->type = STATEMENT_INSERT;
-  char *keyword        = strtok(buffer->buf, " ");
-  char *id_string      = strtok(NULL, " ");
-  char *username       = strtok(NULL, " ");
-  char *email          = strtok(NULL, " ");
+  statement->type = STATEMENT_INSERT;
+  char *keyword = strtok(buffer->buf, " ");
+  char *id_string = strtok(NULL, " ");
+  char *username = strtok(NULL, " ");
+  char *email = strtok(NULL, " ");
 
   if (id_string == NULL || username == NULL || email == NULL) {
     return PREPARE_SYNTAX_ERROR;
@@ -288,7 +288,7 @@ void *get_page(Pager *pager, uint32_t page_num) {
   }
 
   if (pager->pages[page_num] == NULL) {
-    void     *page     = malloc(PAGE_SIZE);
+    void *page = malloc(PAGE_SIZE);
     uint32_t num_pages = pager->file_len / PAGE_SIZE;
 
     if (pager->file_len % PAGE_SIZE) {
@@ -309,16 +309,16 @@ void *get_page(Pager *pager, uint32_t page_num) {
   return pager->pages[page_num];
 }
 
-void *cursor_value(Cursor* cursor) {
+void *cursor_value(Cursor *cursor) {
   uint32_t row_num = cursor->row_num;
-  uint32_t page_num    = row_num / ROWS_PER_PAGE;
-  void     *page       = get_page(cursor->table->pager, page_num);
-  uint32_t row_offset  = row_num % ROWS_PER_PAGE;
+  uint32_t page_num = row_num / ROWS_PER_PAGE;
+  void *page = get_page(cursor->table->pager, page_num);
+  uint32_t row_offset = row_num % ROWS_PER_PAGE;
   uint32_t byte_offset = row_offset * ROW_SIZE;
 
   return page + byte_offset;
 }
-void cursor_advance(Cursor* cursor) {
+void cursor_advance(Cursor *cursor) {
   cursor->row_num += 1;
   if (cursor->row_num >= cursor->table->num_rows) {
     cursor->end_of_table = true;
@@ -330,14 +330,14 @@ ExecuteResult execute_insert(Statement *statement, Table *table) {
     return EXECUTE_TABLE_FULL;
   }
   Row *row_to_insert = &(statement->row_to_insert);
-  Cursor* cursor = table_end(table);
+  Cursor *cursor = table_end(table);
   serialize_row(row_to_insert, cursor_value(cursor));
   table->num_rows += 1;
   return EXECUTE_SUCCESS;
 }
 
 ExecuteResult execute_select(Statement *statement, Table *table) {
-  Cursor* cursor = table_start(table);
+  Cursor *cursor = table_start(table);
   Row row;
   while (!cursor->end_of_table) {
     deserialize_row(cursor_value(cursor), &row);
@@ -351,9 +351,9 @@ ExecuteResult execute_select(Statement *statement, Table *table) {
 
 ExecuteResult execute_statement(Statement *statement, Table *table) {
   switch (statement->type) {
-  case STATEMENT_INSERT: 
+  case STATEMENT_INSERT:
     return execute_insert(statement, table);
-  case STATEMENT_SELECT: 
+  case STATEMENT_SELECT:
     return execute_select(statement, table);
   }
 }
@@ -364,18 +364,18 @@ int main(int argc, char **argv) {
     exit(EXIT_FAILURE);
   }
 
-  char    *filename = argv[1];
-  Table   *table    = db_open(filename);
-  Ibuffer *buffer   = new_in_buffer();
+  char *filename = argv[1];
+  Table *table = db_open(filename);
+  Ibuffer *buffer = new_in_buffer();
   for (;;) {
     print_prompt();
     read_input(buffer);
 
     if (buffer->buf[0] == '.') {
       switch (do_meta_command(buffer, table)) {
-      case META_COMMAND_SUCCESS: 
+      case META_COMMAND_SUCCESS:
         continue;
-      case META_COMMAND_UNRECOGNIZED_COMMAND: 
+      case META_COMMAND_UNRECOGNIZED_COMMAND:
         printf("Unrecognized command '%s'\n", buffer->buf);
         continue;
       }
@@ -383,27 +383,27 @@ int main(int argc, char **argv) {
 
     Statement statement;
     switch (prepare_statement(buffer, &statement)) {
-    case PREPARE_SUCCESS: 
+    case PREPARE_SUCCESS:
       break;
-    case PREPARE_SYNTAX_ERROR: 
+    case PREPARE_SYNTAX_ERROR:
       printf("Syntax error. Could not parse statement.\n");
       continue;
-    case PREPARE_NEGATIVE_ID: 
+    case PREPARE_NEGATIVE_ID:
       printf("ID must be positive.\n");
       continue;
-    case PREPARE_STRING_TOO_LONG: 
+    case PREPARE_STRING_TOO_LONG:
       printf("String is too long.\n");
       continue;
-    case PREPARE_UNRECOGNIZED_STATEMENT: 
+    case PREPARE_UNRECOGNIZED_STATEMENT:
       printf("Unrecognized keyword at start of '%s'.\n", buffer->buf);
       continue;
     }
 
     switch (execute_statement(&statement, table)) {
-    case EXECUTE_SUCCESS: 
+    case EXECUTE_SUCCESS:
       printf("Executed.\n");
       break;
-    case EXECUTE_TABLE_FULL: 
+    case EXECUTE_TABLE_FULL:
       printf("Error: Table full.\n");
       break;
     }
